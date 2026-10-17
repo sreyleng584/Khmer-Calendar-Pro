@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#991b1b" />
+      <stop offset="50%" stop-color="#7f1d1d" />
+      <stop offset="100%" stop-color="#450a0a" />
+    </linearGradient>
+    <linearGradient id="gold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fef08a" />
+      <stop offset="50%" stop-color="#eab308" />
+      <stop offset="100%" stop-color="#ca8a04" />
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#000" flood-opacity="0.4" />
+    </filter>
+  </defs>
+
+  <!-- Background with subtle gold border -->
+  <rect width="512" height="512" rx="108" fill="url(#bg)" />
+  <rect x="12" y="12" width="488" height="488" rx="96" fill="none" stroke="url(#gold)" stroke-width="4" stroke-opacity="0.35" />
+
+  <!-- Circular Mandorla / Sun Halo -->
+  <circle cx="256" cy="236" r="148" fill="none" stroke="url(#gold)" stroke-width="3" stroke-dasharray="8 6" stroke-opacity="0.6" />
+
+  <!-- Stylized Crescent Moon (Chankitek / Lunar) -->
+  <path d="M 280,120 A 120,120 0 1 0 350,310 A 105,105 0 1 1 280,120 Z" fill="url(#gold)" filter="url(#shadow)" />
+
+  <!-- Central Lotus / Traditional spire silhouette -->
+  <g fill="url(#gold)" filter="url(#shadow)">
+    <!-- Central Stupa Spire -->
+    <path d="M 256,150 L 268,230 L 284,236 L 270,250 L 274,310 L 238,310 L 242,250 L 228,236 L 244,230 Z" opacity="0.9" />
+    <!-- Three Angkor Lotus Towers -->
+    <path d="M 256,170 C 265,195 272,240 272,295 L 240,295 C 240,240 247,195 256,170 Z" />
+    <path d="M 216,210 C 222,230 228,265 228,295 L 204,295 C 204,265 210,230 216,210 Z" opacity="0.85" />
+    <path d="M 296,210 C 302,230 308,265 308,295 L 284,295 C 284,265 290,230 296,210 Z" opacity="0.85" />
+    <!-- Foundation Base -->
+    <rect x="180" y="295" width="152" height="18" rx="6" />
+    <rect x="160" y="316" width="192" height="14" rx="4" opacity="0.8" />
+  </g>
+
+  <!-- Stars / Constellation dots -->
+  <circle cx="160" cy="160" r="6" fill="url(#gold)" opacity="0.8" />
+  <circle cx="360" cy="180" r="5" fill="url(#gold)" opacity="0.8" />
+  <circle cx="130" cy="270" r="4" fill="url(#gold)" opacity="0.6" />
+  <circle cx="380" cy="280" r="5" fill="url(#gold)" opacity="0.6" />
+
+  <!-- Khmer Calendar Pro Text Emblem at bottom -->
+  <text x="256" y="388" font-family="'Kantumruy Pro', sans-serif, system-ui" font-weight="700" font-size="44" fill="#ffffff" text-anchor="middle" letter-spacing="2">
+    ប្រតិទិនខ្មែរ
+  </text>
+  <text x="256" y="432" font-family="sans-serif, system-ui" font-weight="800" font-size="24" fill="url(#gold)" text-anchor="middle" letter-spacing="6">
+    PRO CALENDAR
+  </text>
+</svg>

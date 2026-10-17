@@ -1,0 +1,6 @@
+{
+  "name": "Khmer Calendar Pro",
+  "description": "ប្រតិទិនខ្មែរ ប្រូ - Official Cambodian lunar calendar, Buddhist holy days (ថ្ងៃសីល), public holidays, and events management for Web and Android.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

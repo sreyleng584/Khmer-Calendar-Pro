@@ -41,9 +41,9 @@ export const Header: React.FC<HeaderProps> = ({
           onClick={() => onTabChange('home')}
           className="flex items-center gap-2.5 cursor-pointer select-none group"
         >
-          <div className="relative w-9 h-9 rounded-xl bg-gradient-to-br from-red-700 via-red-800 to-red-950 flex items-center justify-center shadow-md shadow-red-900/20 ring-1 ring-amber-400/40">
-            <span className="text-amber-300 font-bold text-lg select-none">ក</span>
-            <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-amber-400 rounded-full border-2 border-white dark:border-stone-900" />
+          <div className="relative w-10 h-10 rounded-xl bg-gradient-to-br from-red-800 via-red-900 to-red-950 flex items-center justify-center shadow-md shadow-red-900/30 ring-2 ring-amber-400/70 overflow-hidden group-hover:ring-amber-300 transition">
+            <img src="/Khmer Calendar Pro Icon.png" alt="Khmer Calendar Pro logo" className="w-full h-full object-cover" />
+            <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-amber-400 rounded-full border-2 border-white dark:border-stone-900 shadow" />
           </div>
           <div>
             <div className="flex items-center gap-1.5">

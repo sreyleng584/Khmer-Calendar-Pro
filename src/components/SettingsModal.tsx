@@ -3,10 +3,11 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { AppSettings } from '../storage/settingsStore.ts';
 import { eventsStore } from '../storage/eventsStore.ts';
 import { notificationService } from '../services/notificationService.ts';
+import { observanceNotificationService, ObservanceReminderInfo } from '../services/observanceNotificationService.ts';
 import {
   X,
   Languages,
@@ -22,6 +23,9 @@ import {
   DollarSign,
   CheckCircle2,
   FileCode,
+  Calendar,
+  Clock,
+  Sparkles,
 } from 'lucide-react';
 
 interface SettingsModalProps {
@@ -37,11 +41,18 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   onClose,
   onEventsImported,
 }) => {
-  const [activeTab, setActiveTab] = useState<'general' | 'backup' | 'android' | 'privacy'>('general');
+  const [activeTab, setActiveTab] = useState<'general' | 'notifications' | 'backup' | 'android' | 'privacy'>('general');
   const [importStatus, setImportStatus] = useState<string | null>(null);
   const [notificationMsg, setNotificationMsg] = useState<string | null>(null);
+  const [permStatus, setPermStatus] = useState<string>('checking...');
+  const [nextObservance, setNextObservance] = useState<ObservanceReminderInfo | null>(null);
 
   const lang = settings.language;
+
+  useEffect(() => {
+    observanceNotificationService.checkPermissions().then(setPermStatus);
+    setNextObservance(observanceNotificationService.getNextObservance());
+  }, []);
 
   const handleExportData = () => {
     const jsonStr = eventsStore.exportJson();
@@ -77,24 +88,29 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     reader.readAsText(file);
   };
 
-  const handleRequestNotification = async () => {
-    const perm = await notificationService.requestPermission();
-    if (perm === 'granted') {
-      onUpdateSettings({ notificationsEnabled: true });
+  const handleRequestNotificationPermission = async () => {
+    const res = await observanceNotificationService.requestPermissions();
+    setPermStatus(res);
+    if (res === 'granted') {
       setNotificationMsg(
-        lang === 'km' ? 'បានបើកសិទ្ធិទទួលដំណឹងជោគជ័យ!' : 'Notification permission granted!'
+        lang === 'km' ? 'បានបើកសិទ្ធិទទួលដំណឹងថ្ងៃសីលជោគជ័យ!' : 'Buddhist observance notification permission granted!'
       );
-      notificationService.sendNotification('ប្រតិទិនខ្មែរ ប្រូ', {
-        body: 'ការរំលឹកកាលវិភាគ និងថ្ងៃសីលត្រូវបានបើកដំណើរការ',
-      });
+      await observanceNotificationService.scheduleObservanceReminders();
     } else {
-      onUpdateSettings({ notificationsEnabled: false });
       setNotificationMsg(
-        lang === 'km'
-          ? 'សិទ្ធិទទួលដំណឹងត្រូវបានបដិសេធលើកម្មវិធីរុករក'
-          : 'Notification permission was denied.'
+        lang === 'km' ? 'សិទ្ធិទទួលដំណឹងត្រូវបានបដិសេធ' : 'Notification permission was denied.'
       );
     }
+    setTimeout(() => setNotificationMsg(null), 4000);
+  };
+
+  const handleTestNotification = async () => {
+    const success = await observanceNotificationService.sendTestNotification();
+    setNotificationMsg(
+      success
+        ? (lang === 'km' ? 'បានផ្ញើការជូនដំណឹងសាកល្បងដោយជោគជ័យ!' : 'Test notification sent successfully!')
+        : (lang === 'km' ? 'បរាជ័យក្នុងការផ្ញើ សូមពិនិត្យសិទ្ធិទទួលដំណឹង' : 'Failed to send. Check permissions.')
+    );
     setTimeout(() => setNotificationMsg(null), 4000);
   };
 
@@ -107,7 +123,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             <h3 className="font-bold text-base text-stone-900 dark:text-stone-100">
               {lang === 'km' ? 'ការកំណត់ & ព័ត៌មានកម្មវិធី' : 'Settings & Information'}
             </h3>
-            <p className="text-xs text-stone-500">Khmer Calendar Pro v1.0.0</p>
+            <p className="text-xs text-stone-500">Khmer Calendar Pro v1.1.0</p>
           </div>
           <button
             onClick={onClose}
@@ -128,6 +144,16 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             }`}
           >
             {lang === 'km' ? 'ទូទៅ' : 'General'}
+          </button>
+          <button
+            onClick={() => setActiveTab('notifications')}
+            className={`px-3 py-2 border-b-2 transition ${
+              activeTab === 'notifications'
+                ? 'border-red-700 text-red-700 dark:text-red-400 font-bold'
+                : 'border-transparent text-stone-500 hover:text-stone-800'
+            }`}
+          >
+            {lang === 'km' ? 'ថ្ងៃសីល & រំលឹក' : 'Observance Alerts'}
           </button>
           <button
             onClick={() => setActiveTab('backup')}
@@ -276,40 +302,159 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   </button>
                 </div>
               </div>
+            </div>
+          )}
 
-              {/* Notifications */}
-              <div className="p-3 rounded-2xl bg-stone-50 dark:bg-stone-800/40 border border-stone-200/80 dark:border-stone-700/60 space-y-2">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2.5">
-                    <Bell className="w-4 h-4 text-red-600" />
-                    <div>
-                      <span className="block text-xs font-bold text-stone-900 dark:text-stone-100">
-                        {lang === 'km' ? 'ការជូនដំណឹង & រំលឹក' : 'Notifications'}
-                      </span>
-                      <span className="text-[11px] text-stone-500">
-                        {settings.notificationsEnabled
-                          ? lang === 'km'
-                            ? 'បានបើក'
-                            : 'Enabled'
-                          : lang === 'km'
-                          ? 'បានបិទ'
-                          : 'Disabled'}
+          {activeTab === 'notifications' && (
+            <div className="space-y-4">
+              {/* Next Observance Summary Banner */}
+              {nextObservance && (
+                <div className="p-3.5 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-300/60 dark:border-amber-700/50 flex items-center gap-3">
+                  <div className="p-2 rounded-xl bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-amber-300 shrink-0">
+                    <Sparkles className="w-4 h-4" />
+                  </div>
+                  <div className="text-xs">
+                    <span className="font-bold text-amber-900 dark:text-amber-200 block">
+                      {lang === 'km' ? 'ថ្ងៃសីលបន្ទាប់ (Next Observance):' : 'Next Observance:'} {nextObservance.dateStr}
+                    </span>
+                    <span className="text-stone-600 dark:text-stone-300">
+                      {nextObservance.lunarString} ({nextObservance.daysUntil === 0 ? (lang === 'km' ? 'ថ្ងៃនេះ' : 'Today') : (lang === 'km' ? `ក្នុងរយៈពេល ${nextObservance.daysUntil}ថ្ងៃ` : `in ${nextObservance.daysUntil} days`)})
+                    </span>
+                  </div>
+                </div>
+              )}
+
+              {/* Master Switch for Observance Reminders */}
+              <div className="flex items-center justify-between p-3.5 rounded-2xl bg-stone-50 dark:bg-stone-800/40 border border-stone-200/80 dark:border-stone-700/60">
+                <div className="flex items-center gap-2.5">
+                  <Bell className="w-4 h-4 text-red-700 dark:text-red-400" />
+                  <div>
+                    <span className="block text-xs font-bold text-stone-900 dark:text-stone-100">
+                      {lang === 'km' ? 'ការជូនដំណឹងថ្ងៃសីលស្វ័យប្រវត្ត' : 'Automatic Observance Alerts'}
+                    </span>
+                    <span className="text-[11px] text-stone-500">
+                      {lang === 'km' ? 'ជូនដំណឹងមុន ១ថ្ងៃ និងថ្ងៃសីលផ្ទាល់' : 'Remind 1 day before & on observance day'}
+                    </span>
+                  </div>
+                </div>
+                <input
+                  type="checkbox"
+                  checked={settings.observanceRemindersEnabled}
+                  onChange={(e) => {
+                    onUpdateSettings({ observanceRemindersEnabled: e.target.checked });
+                    observanceNotificationService.scheduleObservanceReminders();
+                  }}
+                  className="w-4 h-4 accent-red-800 cursor-pointer"
+                />
+              </div>
+
+              {settings.observanceRemindersEnabled && (
+                <div className="space-y-3 pl-2 border-l-2 border-red-800/30">
+                  {/* Reminder 1: One day before */}
+                  <div className="flex items-center justify-between p-3 rounded-xl bg-stone-50 dark:bg-stone-800/30 border border-stone-200/60 dark:border-stone-700/40">
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        checked={settings.remindOneDayBefore}
+                        onChange={(e) => {
+                          onUpdateSettings({ remindOneDayBefore: e.target.checked });
+                          observanceNotificationService.scheduleObservanceReminders();
+                        }}
+                        className="w-3.5 h-3.5 accent-red-800 cursor-pointer"
+                      />
+                      <span className="text-xs font-semibold text-stone-800 dark:text-stone-200">
+                        {lang === 'km' ? 'ជូនដំណឹងមុន ១ថ្ងៃ (ល្ងាច)' : 'Remind 1 day before (Evening)'}
                       </span>
                     </div>
+                    <div className="flex items-center gap-1.5">
+                      <Clock className="w-3.5 h-3.5 text-stone-400" />
+                      <input
+                        type="time"
+                        value={settings.remindOneDayBeforeTime}
+                        onChange={(e) => {
+                          onUpdateSettings({ remindOneDayBeforeTime: e.target.value });
+                          observanceNotificationService.scheduleObservanceReminders();
+                        }}
+                        className="bg-white dark:bg-stone-900 border border-stone-300 dark:border-stone-700 rounded-lg px-2 py-1 text-xs font-mono"
+                      />
+                    </div>
                   </div>
+
+                  {/* Reminder 2: On observance day */}
+                  <div className="flex items-center justify-between p-3 rounded-xl bg-stone-50 dark:bg-stone-800/30 border border-stone-200/60 dark:border-stone-700/40">
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        checked={settings.remindOnDayOf}
+                        onChange={(e) => {
+                          onUpdateSettings({ remindOnDayOf: e.target.checked });
+                          observanceNotificationService.scheduleObservanceReminders();
+                        }}
+                        className="w-3.5 h-3.5 accent-red-800 cursor-pointer"
+                      />
+                      <span className="text-xs font-semibold text-stone-800 dark:text-stone-200">
+                        {lang === 'km' ? 'ជូនដំណឹងនៅថ្ងៃសីល (ព្រឹក)' : 'Remind on observance day (Morning)'}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <Clock className="w-3.5 h-3.5 text-stone-400" />
+                      <input
+                        type="time"
+                        value={settings.remindOnDayOfTime}
+                        onChange={(e) => {
+                          onUpdateSettings({ remindOnDayOfTime: e.target.value });
+                          observanceNotificationService.scheduleObservanceReminders();
+                        }}
+                        className="bg-white dark:bg-stone-900 border border-stone-300 dark:border-stone-700 rounded-lg px-2 py-1 text-xs font-mono"
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Permission status & Test button */}
+              <div className="p-3.5 rounded-2xl bg-stone-50 dark:bg-stone-800/40 border border-stone-200/80 dark:border-stone-700/60 space-y-3">
+                <div className="flex items-center justify-between text-xs">
+                  <div>
+                    <span className="font-bold text-stone-900 dark:text-stone-100 block">
+                      {lang === 'km' ? 'ស្ថានភាពសិទ្ធិទទួលដំណឹង៖' : 'Permission Status:'}
+                    </span>
+                    <span className="text-stone-500 uppercase font-mono text-[11px]">{permStatus}</span>
+                  </div>
+                  {permStatus !== 'granted' && (
+                    <button
+                      onClick={handleRequestNotificationPermission}
+                      className="px-3 py-1.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-semibold shadow-xs transition"
+                    >
+                      {lang === 'km' ? 'ស្នើសុំសិទ្ធិ' : 'Request Permission'}
+                    </button>
+                  )}
+                </div>
+
+                <div className="pt-2 border-t border-stone-200/60 dark:border-stone-700/60 flex items-center justify-between">
+                  <span className="text-xs text-stone-600 dark:text-stone-400">
+                    {lang === 'km' ? 'សាកល្បងផ្ញើការជូនដំណឹងทันที' : 'Send instant test alert'}
+                  </span>
                   <button
-                    onClick={handleRequestNotification}
-                    className="px-3 py-1.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-semibold shadow-xs transition"
+                    onClick={handleTestNotification}
+                    className="px-3 py-1.5 rounded-xl bg-stone-800 dark:bg-stone-700 hover:bg-stone-900 text-white text-xs font-semibold shadow-xs transition"
                   >
-                    {lang === 'km' ? 'ស្នើសុំសិទ្ធិ' : 'Request Permission'}
+                    {lang === 'km' ? 'តេស្តជូនដំណឹង' : 'Test Alert'}
                   </button>
                 </div>
+
                 {notificationMsg && (
-                  <p className="text-xs text-amber-700 dark:text-amber-400 font-medium">
+                  <p className="text-xs text-amber-700 dark:text-amber-400 font-medium animate-in fade-in">
                     {notificationMsg}
                   </p>
                 )}
               </div>
+
+              <p className="text-[11px] text-stone-500 leading-relaxed">
+                {lang === 'km'
+                  ? 'ចំណាំ៖ នៅលើកម្មវិធី Capacitor Android ការជូនដំណឹងនឹងដំណើរការក្រៅបណ្តាញក្នុងម៉ាស៊ីន។ ចំណែកឯលើកម្មវិធីរុករក Web PWA ការជូនដំណឹងទាមទារឱ្យកម្មវិធីបើកដំណើរការជាប្រចាំ។'
+                  : 'Note: On Capacitor Android APK, notifications operate fully offline via local scheduling. On web browsers / PWAs, foreground alerts are supported when the app is active.'}
+              </p>
             </div>
           )}
 
@@ -356,7 +501,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           )}
 
           {activeTab === 'android' && (
-            <div className="space-y-3 text-xs text-stone-700 dark:text-stone-300">
+            <div className="space-y-4 text-xs text-stone-700 dark:text-stone-300">
               <div className="p-4 rounded-2xl bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900/40 space-y-2">
                 <div className="flex items-center gap-2 text-red-900 dark:text-red-200 font-bold">
                   <Smartphone className="w-4 h-4 text-red-600" />
@@ -426,7 +571,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 </div>
                 <p className="text-[11px] text-stone-600 dark:text-stone-300">
                   {lang === 'km'
-                    ? 'មុខងារប្រតិទិន និងការកត់ត្រាស្នូលទាំងអស់គឺឥតគិតថ្លៃ ១០០%។ គ្មានផ្ទាំងពាណិជ្ជកម្មរំខានការប្រើប្រាស់ឡើយ។ គាំទ្រការបន្ថែម Premium themes ឬ Google AdMob banner ដោយមិនប៉ះពាល់ដល់ភាពត្រឹមត្រូវនៃប្រតិទិន។'
+                    ? 'មុខងារប្រតិទិន និងការកត់ត្រាស្នូលទាំងអស់គឺឥតគិតថ្លៃ ១០០%។ គ្មានផ្ទាំងពាណិជ្ជកម្មរំខានการប្រើប្រាស់ឡើយ។ គាំទ្រការបន្ថែម Premium themes ឬ Google AdMob banner ដោយមិនប៉ះពាល់ដល់ភាពត្រឹមត្រូវនៃប្រតិទិន។'
                     : 'Core calendar calculations, holy days, and reminders are 100% free with no paywalls. Built ready for optional non-intrusive AdMob banner or premium artistic themes.'}
                 </p>
               </div>

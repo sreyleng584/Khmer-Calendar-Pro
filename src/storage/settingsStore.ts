@@ -15,9 +15,14 @@ export interface AppSettings {
   textSize: TextSize;
   notificationsEnabled: boolean;
   soundEnabled: boolean;
+  observanceRemindersEnabled: boolean;
+  remindOneDayBefore: boolean;
+  remindOneDayBeforeTime: string; // e.g., '19:00'
+  remindOnDayOf: boolean;
+  remindOnDayOfTime: string; // e.g., '06:00'
 }
 
-const SETTINGS_KEY = 'khmer_calendar_pro_settings_v1';
+const SETTINGS_KEY = 'khmer_calendar_pro_settings_v2';
 
 export const DEFAULT_SETTINGS: AppSettings = {
   language: 'km',
@@ -26,6 +31,11 @@ export const DEFAULT_SETTINGS: AppSettings = {
   textSize: 'normal',
   notificationsEnabled: true,
   soundEnabled: true,
+  observanceRemindersEnabled: true,
+  remindOneDayBefore: true,
+  remindOneDayBeforeTime: '19:00',
+  remindOnDayOf: true,
+  remindOnDayOfTime: '06:00',
 };
 
 class SettingsStore {

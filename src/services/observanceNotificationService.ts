@@ -33,7 +33,9 @@ class ObservanceNotificationService {
       }
     } else {
       if (!('Notification' in window)) return 'unsupported';
-      return Notification.permission as 'granted' | 'denied' | 'default';
+      const perm = Notification.permission;
+      if (perm === 'default') return 'prompt';
+      return perm as 'granted' | 'denied';
     }
   }
 

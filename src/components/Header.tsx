@@ -4,10 +4,10 @@
  */
 
 import React from 'react';
-import { Calendar, CheckCircle2, Settings, Sparkles, Home, ListTodo, Award } from 'lucide-react';
+import { Calendar, CheckCircle2, Settings, Sparkles, Home, ListTodo, Award, CloudSun } from 'lucide-react';
 import { PWAInstallButton } from './PWAInstallButton.tsx';
 
-export type ActiveTab = 'home' | 'calendar' | 'holidays' | 'events' | 'newyear';
+export type ActiveTab = 'home' | 'calendar' | 'holidays' | 'events' | 'newyear' | 'weather';
 
 interface HeaderProps {
   activeTab: ActiveTab;
@@ -27,6 +27,7 @@ export const Header: React.FC<HeaderProps> = ({
   const tabs = [
     { id: 'home', labelKh: 'ផ្ទាំងដើម', labelEn: 'Home', icon: Home },
     { id: 'calendar', labelKh: 'ប្រតិទិនខែ', labelEn: 'Calendar', icon: Calendar },
+    { id: 'weather', labelKh: 'អាកាសធាតុ', labelEn: 'Weather', icon: CloudSun },
     { id: 'holidays', labelKh: 'បុណ្យជាតិ & សីល', labelEn: 'Holidays', icon: Award },
     { id: 'events', labelKh: 'កិច្ចការ & រំលឹក', labelEn: 'My Events', icon: ListTodo },
     { id: 'newyear', labelKh: 'មហាសង្ក្រាន្ត', labelEn: 'New Year', icon: Sparkles },

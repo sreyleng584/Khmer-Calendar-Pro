@@ -302,6 +302,43 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   </button>
                 </div>
               </div>
+
+              {/* Temperature Unit */}
+              <div className="flex items-center justify-between p-3 rounded-2xl bg-stone-50 dark:bg-stone-800/40 border border-stone-200/80 dark:border-stone-700/60">
+                <div className="flex items-center gap-2.5">
+                  <Sun className="w-4 h-4 text-amber-500" />
+                  <div>
+                    <span className="block text-xs font-bold text-stone-900 dark:text-stone-100">
+                      {lang === 'km' ? 'ខ្នាតសីតុណ្ហភាពអាកាសធាតុ' : 'Temperature Unit'}
+                    </span>
+                    <span className="text-[11px] text-stone-500">
+                      {settings.temperatureUnit === 'fahrenheit' ? 'Fahrenheit (°F)' : 'Celsius (°C)'}
+                    </span>
+                  </div>
+                </div>
+                <div className="flex gap-1 bg-stone-200 dark:bg-stone-700 p-1 rounded-xl">
+                  <button
+                    onClick={() => onUpdateSettings({ temperatureUnit: 'celsius' })}
+                    className={`px-2.5 py-1 rounded-lg text-xs font-bold transition ${
+                      settings.temperatureUnit !== 'fahrenheit'
+                        ? 'bg-red-800 text-white shadow-xs'
+                        : 'text-stone-600 dark:text-stone-300'
+                    }`}
+                  >
+                    °C
+                  </button>
+                  <button
+                    onClick={() => onUpdateSettings({ temperatureUnit: 'fahrenheit' })}
+                    className={`px-2.5 py-1 rounded-lg text-xs font-bold transition ${
+                      settings.temperatureUnit === 'fahrenheit'
+                        ? 'bg-red-800 text-white shadow-xs'
+                        : 'text-stone-600 dark:text-stone-300'
+                    }`}
+                  >
+                    °F
+                  </button>
+                </div>
+              </div>
             </div>
           )}
 

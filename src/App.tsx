@@ -15,6 +15,7 @@ import { EventModal } from './components/EventModal.tsx';
 import { SettingsModal } from './components/SettingsModal.tsx';
 import { OfflineIndicator } from './components/OfflineIndicator.tsx';
 import { PWAUpdateToast } from './components/PWAUpdateToast.tsx';
+import { WeatherDetailsView } from './components/WeatherDetailsView.tsx';
 
 import { getKhmerDate, KhmerDateResult, getCambodiaToday } from './calendar/khmerDateAdapter.ts';
 import { getHolidaysForDate, getHolidaysForYear, HolidayItem } from './data/holidays.ts';
@@ -207,7 +208,22 @@ export default function App() {
             onSelectDate={handleSelectDate}
             onOpenShare={handleOpenShare}
             onOpenNewYear={() => setActiveTab('newyear')}
+            onOpenWeather={() => setActiveTab('weather')}
+            selectedLocationId={settings.selectedLocationId}
+            temperatureUnit={settings.temperatureUnit}
             onToggleEventComplete={handleToggleEventComplete}
+            useKhmerNumerals={settings.numeralStyle === 'khmer'}
+            lang={settings.language}
+          />
+        )}
+
+        {activeTab === 'weather' && (
+          <WeatherDetailsView
+            onBack={() => setActiveTab('home')}
+            selectedLocationId={settings.selectedLocationId}
+            onSelectLocationId={(id) => settingsStore.set({ selectedLocationId: id })}
+            temperatureUnit={settings.temperatureUnit}
+            onToggleTempUnit={(unit) => settingsStore.set({ temperatureUnit: unit })}
             useKhmerNumerals={settings.numeralStyle === 'khmer'}
             lang={settings.language}
           />

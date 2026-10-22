@@ -22,6 +22,8 @@ import {
   Sun,
   ShieldCheck,
 } from 'lucide-react';
+import { WeatherMiniCard } from './WeatherMiniCard.tsx';
+import { TemperatureUnit } from '../storage/settingsStore.ts';
 
 interface HomeDashboardProps {
   todayKhmerDate: KhmerDateResult;
@@ -34,6 +36,9 @@ interface HomeDashboardProps {
   onSelectDate: (dateStr: string) => void;
   onOpenShare: (dateResult: KhmerDateResult) => void;
   onOpenNewYear: () => void;
+  onOpenWeather?: () => void;
+  selectedLocationId?: string;
+  temperatureUnit?: TemperatureUnit;
   onToggleEventComplete: (id: string) => void;
   useKhmerNumerals: boolean;
   lang: 'km' | 'en';
@@ -50,6 +55,9 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
   onSelectDate,
   onOpenShare,
   onOpenNewYear,
+  onOpenWeather,
+  selectedLocationId,
+  temperatureUnit,
   onToggleEventComplete,
   useKhmerNumerals,
   lang,
@@ -148,6 +156,19 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
                   {lang === 'km' ? 'ឈប់សម្រាក' : 'Holiday'}
                 </span>
                 <span className="font-medium">{todayHolidays.map((h) => h.nameKh).join(', ')}</span>
+              </div>
+            )}
+
+            {/* Weather Mini Card - Designated in home card */}
+            {onOpenWeather && (
+              <div className="pt-2 border-t border-white/10">
+                <WeatherMiniCard
+                  onOpenWeatherDetails={onOpenWeather}
+                  selectedLocationId={selectedLocationId}
+                  temperatureUnit={temperatureUnit}
+                  useKhmerNumerals={useKhmerNumerals}
+                  lang={lang}
+                />
               </div>
             )}
           </div>

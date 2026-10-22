@@ -8,11 +8,15 @@ export type NumeralStyle = 'khmer' | 'western';
 export type ThemeMode = 'light' | 'dark' | 'system';
 export type TextSize = 'normal' | 'large';
 
+export type TemperatureUnit = 'celsius' | 'fahrenheit';
+
 export interface AppSettings {
   language: Language;
   numeralStyle: NumeralStyle;
   theme: ThemeMode;
   textSize: TextSize;
+  temperatureUnit: TemperatureUnit;
+  selectedLocationId: string;
   notificationsEnabled: boolean;
   soundEnabled: boolean;
   observanceRemindersEnabled: boolean;
@@ -29,6 +33,8 @@ export const DEFAULT_SETTINGS: AppSettings = {
   numeralStyle: 'khmer',
   theme: 'light',
   textSize: 'normal',
+  temperatureUnit: 'celsius',
+  selectedLocationId: 'phnom-penh',
   notificationsEnabled: true,
   soundEnabled: true,
   observanceRemindersEnabled: true,
@@ -74,6 +80,10 @@ class SettingsStore {
     }
     this.notify();
     return this.get();
+  }
+
+  public set(patch: Partial<AppSettings>): AppSettings {
+    return this.update(patch);
   }
 
   public subscribe(listener: (settings: AppSettings) => void): () => void {
